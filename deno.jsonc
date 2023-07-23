@@ -1,8 +1,9 @@
 {
   "imports": {
-    "std/": "https://deno.land/std@0.195.0/"
+    "std/": "https://deno.land/std@0.195.0/",
+    "type/": "https://deno.land/x/type@0.2.0/"
   },
   "tasks": {
-    "test": "deno test --watch test.ts"
+    "coverage": "rm -rf cov_profile && deno test --coverage=cov_profile && deno coverage cov_profile"
   }
 }
