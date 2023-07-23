@@ -1,13 +1,18 @@
 # serializable
 
-Serializable type definitions for TypeScript
+Serializable type definitions for TypeScript and a helper function to convert
+anything into a safely serializable value.
 
 ## Usage
 
 ```ts
-import type { Serializable } from "https://deno.land/x/serializable@0.1.0/mod.ts";
+import type {
+  Serializable,
+  toSerializable,
+} from "https://deno.land/x/serializable/mod.ts";
 
-export function send(message: Serializable) {
+export function send(message: unknown) {
+  const serializable: Serializable = toSerializable(message);
   const data = JSON.stringify(message);
   // ...
 }
