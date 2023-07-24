@@ -18,13 +18,27 @@ export function isToJson(value: unknown): value is ToJson {
 }
 
 export function toSerializableRecord(
-  value: Record<string, unknown>,
+  value: Error | Record<string, unknown>,
 ): SerializableRecord {
-  return Object.entries(value)
-    .filter(([k, v]) =>
-      type(k)[0] === Type.String && type(v)[0] !== Type.Undefined
-    )
-    .reduce((l, [k, v]) => ({ ...l, [k]: toSerializable(v) }), {});
+  const [t, v] = type(value)
+  if (t === Type.Error) {
+    const { name, message, stack, cause, ...rest } = v;
+    return {
+      name,
+      message,
+      stack,
+      ...cause !== undefined ? { cause: toSerializable(cause) } : {},
+      ...toSerializableRecord(rest),
+    };
+  } else if (t === Type.Object) {
+    return Object.entries(value)
+      .filter(([k, v]) =>
+        type(k)[0] === Type.String && type(v)[0] !== Type.Undefined
+      )
+      .reduce((l, [k, v]) => ({ ...l, [k]: toSerializable(v) }), {});
+  } else {
+    throw new TypeError(`Unable to convert type ${t} into a Record<string, unknown>`)
+  }
 }
 
 export function toSerializable(value: unknown): Serializable {
@@ -39,16 +53,7 @@ export function toSerializable(value: unknown): Serializable {
       return v.toString();
     case Type.Array:
       return v.map((v) => toSerializable(v));
-    case Type.Error: {
-      const { name, message, stack, cause, ...rest } = v;
-      return {
-        name,
-        message,
-        stack,
-        ...cause !== undefined ? { cause: toSerializable(cause) } : {},
-        ...toSerializableRecord(rest),
-      };
-    }
+    case Type.Error:
     case Type.Object:
       if (isToJson(value)) {
         return value;
