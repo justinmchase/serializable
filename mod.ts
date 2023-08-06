@@ -1,4 +1,4 @@
-import { Type, type } from "type/mod.ts";
+import { Type, type } from "./deps/type.ts";
 
 export type ToJson = { toJSON(): string };
 export type SerializableRecord = { [key: string]: Serializable };
@@ -20,7 +20,7 @@ export function isToJson(value: unknown): value is ToJson {
 export function toSerializableRecord(
   value: Error | Record<string, unknown>,
 ): SerializableRecord {
-  const [t, v] = type(value)
+  const [t, v] = type(value);
   if (t === Type.Error) {
     const { name, message, stack, cause, ...rest } = v;
     return {
@@ -37,7 +37,9 @@ export function toSerializableRecord(
       )
       .reduce((l, [k, v]) => ({ ...l, [k]: toSerializable(v) }), {});
   } else {
-    throw new TypeError(`Unable to convert type ${t} into a Record<string, unknown>`)
+    throw new TypeError(
+      `Unable to convert type ${t} into a Record<string, unknown>`,
+    );
   }
 }
 

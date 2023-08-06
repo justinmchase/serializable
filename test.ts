@@ -1,5 +1,4 @@
-import { assertEquals } from "std/assert/assert_equals.ts";
-import { assertThrows } from "std/assert/assert_throws.ts";
+import { assertEquals, assertThrows } from "./deps/std.ts";
 import { toSerializable, toSerializableRecord } from "./mod.ts";
 
 class TestError extends Error {
@@ -57,31 +56,34 @@ Deno.test({
     await t.step({
       name: "error",
       fn: () => {
-        const error = new Error("test 123", { cause: "example" })
-        const { stack: _, ...actual } = toSerializableRecord(error)
+        const error = new Error("test 123", { cause: "example" });
+        const { stack: _, ...actual } = toSerializableRecord(error);
         assertEquals(actual, {
           name: "Error",
           message: "test 123",
-          cause: "example"
-        })
-      }
-    })
+          cause: "example",
+        });
+      },
+    });
     await t.step({
       name: "record",
       fn: () => {
-        const record = { x: 1, y: "two" }
-        const actual = toSerializableRecord(record)
+        const record = { x: 1, y: "two" };
+        const actual = toSerializableRecord(record);
         assertEquals(actual, {
           x: 1,
-          y: "two"
-        })
-      }
-    })
+          y: "two",
+        });
+      },
+    });
     await t.step({
       name: "non-record",
       fn: () => {
-        assertThrows(() => toSerializableRecord(true as unknown as Error), "Unable to convert type boolean into a Record<string, unknown>")
-      }
-    })
-  }
-})
+        assertThrows(
+          () => toSerializableRecord(true as unknown as Error),
+          "Unable to convert type boolean into a Record<string, unknown>",
+        );
+      },
+    });
+  },
+});
