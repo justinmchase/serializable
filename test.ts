@@ -1,5 +1,5 @@
-import { assertEquals, assertThrows } from "./deps/std.ts";
-import { toSerializable, toSerializableRecord } from "./mod.ts";
+import { assert, assertEquals, assertThrows } from "std/assert/mod.ts";
+import { isToJson, toSerializable, toSerializableRecord } from "./mod.ts";
 
 class TestError extends Error {
   constructor(public readonly extra = 100) {
@@ -85,5 +85,14 @@ Deno.test({
         );
       },
     });
+  },
+});
+
+Deno.test({
+  name: "ToJSON type guard",
+  fn: () => {
+    const value = { x: 1, y: 2, toJSON: () => ({ z: 3 }) };
+    assert(isToJson(value));
+    assertEquals(JSON.stringify(value), '{"z":3}');
   },
 });

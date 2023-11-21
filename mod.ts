@@ -1,6 +1,6 @@
-import { Type, type } from "./deps/type.ts";
+import { Type, type } from "type/mod.ts";
 
-export type ToJson = { toJSON(): string };
+export type ToJson = { toJSON(): Serializable };
 export type SerializableRecord = { [key: string]: Serializable };
 
 export type Serializable =
