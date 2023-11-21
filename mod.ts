@@ -1,4 +1,4 @@
-import { Type, type } from "type/mod.ts";
+import { Type, type } from "https://deno.land/x/type@0.2.0/mod.ts";
 
 export type ToJson = { toJSON(): Serializable };
 export type SerializableRecord = { [key: string]: Serializable };

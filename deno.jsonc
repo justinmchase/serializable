@@ -2,9 +2,5 @@
   "tasks": {
     "check": "deno fmt && deno lint && deno test",
     "coverage": "rm -rf cov_profile && deno test --coverage=cov_profile && deno coverage cov_profile"
-  },
-  "imports": {
-    "std/": "https://deno.land/std@0.197.0/",
-    "type/": "https://deno.land/x/type@0.2.0/"
   }
 }

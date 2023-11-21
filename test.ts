@@ -1,4 +1,8 @@
-import { assert, assertEquals, assertThrows } from "std/assert/mod.ts";
+import {
+  assert,
+  assertEquals,
+  assertThrows,
+} from "https://deno.land/std@0.197.0/assert/mod.ts";
 import { isToJson, toSerializable, toSerializableRecord } from "./mod.ts";
 
 class TestError extends Error {
