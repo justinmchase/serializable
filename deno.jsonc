@@ -1,6 +1,6 @@
 {
   "name": "@justinmchase/serializable",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "exports": "./mod.ts",
   "tasks": {
     "check": "deno fmt && deno lint && deno test",
