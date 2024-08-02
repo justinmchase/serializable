@@ -64,7 +64,7 @@ jobs:
           EOF
 
           git config user.name  bustin-base[bot]
-          git config user.email bustin-base@github.com
+          git config user.email 177288331+bustin-base[bot]@users.noreply.github.com
           gh auth setup-git
 
           git add .
