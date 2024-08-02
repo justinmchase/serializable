@@ -1,5 +1,15 @@
 {
   "version": "3",
+  "packages": {
+    "specifiers": {
+      "jsr:@justinmchase/type@^0.2.2": "jsr:@justinmchase/type@0.2.2"
+    },
+    "jsr": {
+      "@justinmchase/type@0.2.2": {
+        "integrity": "475f943fb730fd9ced7055fdf28f11f2ba4369c2da6b540fdb49437155e8b91e"
+      }
+    }
+  },
   "remote": {
     "https://deno.land/std@0.197.0/_util/diff.ts": "1a3c044aedf77647d6cac86b798c6417603361b66b54c53331b312caeb447aea",
     "https://deno.land/std@0.197.0/assert/_constants.ts": "8a9da298c26750b28b326b297316cdde860bc237533b07e1337c021379e6b2a9",
@@ -43,5 +53,10 @@
     "https://deno.land/x/type@0.2.0/src/symbol.ts": "49588db1df9d2c4a30ff7cccd27f5093b56113345e67edd87c295097c45da671",
     "https://deno.land/x/type@0.2.0/src/type.ts": "b30ffe1dae288aa151a60e2a5002cc76232831ee312345872a042256f2d09ba0",
     "https://deno.land/x/type@0.2.0/src/undefined.ts": "45d66a237763ae8a1e53bf35e2b853d91ffdc08d4047b0f1d469b3b222ce5586"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@justinmchase/type@^0.2.2"
+    ]
   }
 }

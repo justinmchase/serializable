@@ -1,6 +1,12 @@
 {
+  "name": "@justinmchase/serializable",
+  "version": "0.3.6",
+  "exports": "./mod.ts",
   "tasks": {
     "check": "deno fmt && deno lint && deno test",
     "coverage": "rm -rf cov_profile && deno test --coverage=cov_profile && deno coverage cov_profile"
+  },
+  "imports": {
+    "@justinmchase/type": "jsr:@justinmchase/type@^0.2.2"
   }
 }
