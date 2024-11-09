@@ -7,6 +7,6 @@
     "coverage": "rm -rf cov_profile && deno test --coverage=cov_profile && deno coverage cov_profile"
   },
   "imports": {
-    "@justinmchase/type": "jsr:@justinmchase/type@^0.2.2"
+    "@justinmchase/type": "jsr:@justinmchase/type@^0.2.3"
   }
 }

@@ -1,13 +1,11 @@
 {
-  "version": "3",
-  "packages": {
-    "specifiers": {
-      "jsr:@justinmchase/type@^0.2.2": "jsr:@justinmchase/type@0.2.2"
-    },
-    "jsr": {
-      "@justinmchase/type@0.2.2": {
-        "integrity": "475f943fb730fd9ced7055fdf28f11f2ba4369c2da6b540fdb49437155e8b91e"
-      }
+  "version": "4",
+  "specifiers": {
+    "jsr:@justinmchase/type@~0.2.3": "0.2.3"
+  },
+  "jsr": {
+    "@justinmchase/type@0.2.3": {
+      "integrity": "bb516f56c9860752f25d43c0e61709980405c36b6ef227317eca4e0f7509dc5e"
     }
   },
   "remote": {
@@ -56,7 +54,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@justinmchase/type@^0.2.2"
+      "jsr:@justinmchase/type@~0.2.3"
     ]
   }
 }

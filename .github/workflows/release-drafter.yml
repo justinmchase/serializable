@@ -43,7 +43,7 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - uses: optum/semver-cli/setup@feature/setup-action
+      - uses: optum/semver-cli/setup@main
         with:
           token: ${{ steps.app-token.outputs.token }}
 
