@@ -38,43 +38,15 @@ export function isToJson(value: unknown): value is ToJson {
   return typeof (value as ToJson).toJSON === "function";
 }
 
-/**
- * Converts an error or record into a serializable record.
- * - Keys which are not strings are omitted.
- * - Keys with an undefined value are omitted.
- * - All values are converted to serializable values using the toSerializable function.
- * @param value The value to convert
- * @returns The serializable record
- * @example
- * ```ts
- * toSerializableRecord(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
- * toSerializableRecord({ foo: "bar" }); // { foo: "bar" }
- * ```
- * @throws If the value is not an error or record
- */
-export function toSerializableRecord(
-  value: Error | Record<string, unknown>,
-): SerializableRecord {
-  const [t, v] = type(value);
-  if (t === Type.Error) {
-    const { name, message, stack, cause, ...rest } = v;
-    return {
-      name,
-      message,
-      stack,
-      ...cause !== undefined ? { cause: toSerializable(cause) } : {},
-      ...toSerializableRecord(rest),
-    };
-  } else if (t === Type.Object) {
-    return Object.entries(value)
-      .filter(([k, v]) =>
-        type(k)[0] === Type.String && type(v)[0] !== Type.Undefined
-      )
-      .reduce((l, [k, v]) => ({ ...l, [k]: toSerializable(v) }), {});
-  } else {
-    throw new TypeError(
-      `Unable to convert type ${t} into a Record<string, unknown>`,
-    );
+export function isReference(t: Type): boolean {
+  switch (t) {
+    case Type.Object:
+    case Type.Array:
+    case Type.Error:
+    case Type.Function:
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -102,26 +74,88 @@ export function toSerializableRecord(
  * ```
  * @throws If the value is not serializable
  */
-export function toSerializable(value: unknown): Serializable {
+export function toSerializable(
+  value: unknown,
+): Serializable {
+  let i = 0;
+  const instances = new Map<unknown, number>();
+  const resolve = (value: unknown): Serializable => {
+    const [t, v] = type(value);
+    if (isReference(t)) {
+      if (instances.has(value)) {
+        return { _ref: instances.get(value) };
+      } else {
+        instances.set(value, i++);
+      }
+    }
+
+    const record = (
+      value: Error | Record<string, unknown>,
+    ): SerializableRecord =>
+      Object.entries(value)
+        .filter(([k, v]) =>
+          type(k)[0] === Type.String && type(v)[0] !== Type.Undefined
+        )
+        .reduce((l, [k, v]) => ({ ...l, [k]: resolve(v) }), {});
+
+    switch (t) {
+      case Type.Null:
+      case Type.Number:
+      case Type.Boolean:
+      case Type.String:
+        return v;
+      case Type.BigInt:
+        return v.toString();
+      case Type.Array:
+        return v.map((v) => resolve(v));
+      case Type.Error: {
+        const { name, message, stack, cause, ...rest } = v;
+        return {
+          name,
+          message,
+          stack,
+          ...cause !== undefined ? { cause: resolve(cause) } : {},
+          ...record(rest),
+        };
+      }
+      case Type.Object:
+        if (isToJson(value)) {
+          return value;
+        } else {
+          return record(v);
+        }
+      default:
+        return undefined;
+    }
+  };
+  return resolve(value);
+}
+
+/**
+ * Converts an error or record into a serializable record.
+ * - Keys which are not strings are omitted.
+ * - Keys with an undefined value are omitted.
+ * - All values are converted to serializable values using the toSerializable function.
+ * @param value The value to convert
+ * @returns The serializable record
+ * @example
+ * ```ts
+ * toSerializableRecord(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
+ * toSerializableRecord({ foo: "bar" }); // { foo: "bar" }
+ * ```
+ * @throws If the value is not an error or record
+ */
+export function toSerializableRecord(
+  value: Error | Record<keyof unknown, unknown>,
+): SerializableRecord {
   const [t, v] = type(value);
   switch (t) {
-    case Type.Null:
-    case Type.Number:
-    case Type.Boolean:
-    case Type.String:
-      return v;
-    case Type.BigInt:
-      return v.toString();
-    case Type.Array:
-      return v.map((v) => toSerializable(v));
     case Type.Error:
     case Type.Object:
-      if (isToJson(value)) {
-        return value;
-      } else {
-        return toSerializableRecord(v);
-      }
+      return toSerializable(v) as SerializableRecord;
     default:
-      return undefined;
+      throw new TypeError(
+        `Unable to convert type ${t} into a Record<string, unknown>`,
+      );
   }
 }

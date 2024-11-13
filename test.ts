@@ -3,6 +3,7 @@ import {
   assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.197.0/assert/mod.ts";
+import type { SerializableRecord } from "./mod.ts";
 import { isToJson, toSerializable, toSerializableRecord } from "./mod.ts";
 
 class TestError extends Error {
@@ -86,6 +87,79 @@ Deno.test({
         assertThrows(
           () => toSerializableRecord(true as unknown as Error),
           "Unable to convert type boolean into a Record<string, unknown>",
+        );
+      },
+    });
+  },
+});
+
+Deno.test({
+  name: "to serializable record with recursion",
+  fn: async (t) => {
+    await t.step({
+      name: "objects",
+      fn: () => {
+        const a = { b: null } as { b: unknown };
+        const b = { a };
+        a.b = b;
+        const { stack: _, ...actual } = toSerializableRecord(a);
+        assertEquals(actual, {
+          b: {
+            a: {
+              _ref: 0,
+            },
+          },
+        });
+      },
+    });
+    await t.step({
+      name: "arrays",
+      fn: () => {
+        const a = [{}];
+        const b = [a];
+        a.push(b);
+        const actual = toSerializable(a);
+        assertEquals(actual, [
+          {},
+          [
+            {
+              _ref: 0,
+            },
+          ],
+        ]);
+      },
+    });
+    await t.step({
+      name: "errors",
+      fn: () => {
+        const err0 = new Error("0", {});
+        const err1 = new Error("1", { cause: err0 });
+        err0.cause = err1;
+        const { stack: _, ...actual } = toSerializableRecord(err0);
+        const { name, message, cause } = actual;
+        const { name: nestedName, message: nestedMessage, cause: nestedCause } =
+          cause as SerializableRecord;
+        assertEquals(
+          {
+            name,
+            message,
+            cause: {
+              name: nestedName,
+              message: nestedMessage,
+              cause: nestedCause,
+            },
+          },
+          {
+            cause: {
+              cause: {
+                _ref: 0,
+              },
+              message: "1",
+              name: "Error",
+            },
+            message: "0",
+            name: "Error",
+          },
         );
       },
     });
