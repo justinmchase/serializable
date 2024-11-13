@@ -50,19 +50,30 @@ export function isReference(t: Type): boolean {
   }
 }
 
+
 /**
- * Converts an error or record into a serializable record.
- * - Keys which are not strings are omitted.
- * - Keys with an undefined value are omitted.
- * - All values are converted to serializable values using the toSerializable function.
+ * Recursively converts a value into a serializable value.
+ * - Null, number, boolean, string, and undefined values are returned as is.
+ * - BigInt values are converted to strings.
+ * - Array values are recursively converted.
+ * - Error and Object values are converted to serializable records.
+ * - Objects with a custom toJSON function have their toJSON function called and the result is returned.
  * @param value The value to convert
- * @returns The serializable record
+ * @returns The serializable value
  * @example
  * ```ts
- * toSerializableRecord(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
- * toSerializableRecord({ foo: "bar" }); // { foo: "bar" }
+ * toSerializable(null); // null
+ * toSerializable(42); // 42
+ * toSerializable(true); // true
+ * toSerializable("foo"); // "foo"
+ * toSerializable(undefined); // undefined
+ * toSerializable(BigInt(42)); // "42"
+ * toSerializable([1, 2, 3]); // [1, 2, 3]
+ * toSerializable(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
+ * toSerializable({ foo: "bar" }); // { foo: "bar" }
+ * toSerializable({ toJSON: () => "foo" }); // "foo"
  * ```
- * @throws If the value is not an error or record
+ * @throws If the value is not serializable
  */
 export function toSerializable(
   value: unknown,
@@ -122,28 +133,18 @@ export function toSerializable(
 }
 
 /**
- * Recursively converts a value into a serializable value.
- * - Null, number, boolean, string, and undefined values are returned as is.
- * - BigInt values are converted to strings.
- * - Array values are recursively converted.
- * - Error and Object values are converted to serializable records.
- * - Objects with a custom toJSON function have their toJSON function called and the result is returned.
+ * Converts an error or record into a serializable record.
+ * - Keys which are not strings are omitted.
+ * - Keys with an undefined value are omitted.
+ * - All values are converted to serializable values using the toSerializable function.
  * @param value The value to convert
- * @returns The serializable value
+ * @returns The serializable record
  * @example
  * ```ts
- * toSerializable(null); // null
- * toSerializable(42); // 42
- * toSerializable(true); // true
- * toSerializable("foo"); // "foo"
- * toSerializable(undefined); // undefined
- * toSerializable(BigInt(42)); // "42"
- * toSerializable([1, 2, 3]); // [1, 2, 3]
- * toSerializable(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
- * toSerializable({ foo: "bar" }); // { foo: "bar" }
- * toSerializable({ toJSON: () => "foo" }); // "foo"
+ * toSerializableRecord(new Error("foo")); // { name: "Error", message: "foo", stack: "Error: foo\n    at <anonymous>:1:1", ... }
+ * toSerializableRecord({ foo: "bar" }); // { foo: "bar" }
  * ```
- * @throws If the value is not serializable
+ * @throws If the value is not an error or record
  */
 export function toSerializableRecord(
   value: Error | Record<keyof unknown, unknown>,
