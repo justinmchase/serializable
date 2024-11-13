@@ -50,7 +50,6 @@ export function isReference(t: Type): boolean {
   }
 }
 
-
 /**
  * Recursively converts a value into a serializable value.
  * - Null, number, boolean, string, and undefined values are returned as is.
