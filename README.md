@@ -6,12 +6,10 @@ anything into a safely serializable value.
 ## Usage
 
 ```ts
-import type { Serializable } from "https://deno.land/x/serializable/mod.ts";
-import { toSerializable } from "https://deno.land/x/serializable/mod.ts";
+import { toSerializable } from "jsr:@justinmchase/serializable";
 
 export function send(message: unknown) {
-  const serializable: Serializable = toSerializable(message);
-  const data = JSON.stringify(message);
-  // ...
+  const serializable = toSerializable(message);
+  return JSON.stringify(message); // will now throw
 }
 ```
