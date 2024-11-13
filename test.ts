@@ -93,6 +93,29 @@ Deno.test({
 });
 
 Deno.test({
+  name: "to serializable record with recursion",
+  fn: async (t) => {
+    await t.step({
+      name: "error",
+      fn: () => {
+        const a = { b: null } as { b: unknown };
+        const b = { a };
+        a.b = b;
+
+        const { stack: _, ...actual } = toSerializableRecord(a);
+        assertEquals(actual, {
+          b: {
+            a: {
+              _ref: 0,
+            },
+          },
+        });
+      },
+    });
+  },
+});
+
+Deno.test({
   name: "ToJSON type guard",
   fn: () => {
     const value = { x: 1, y: 2, toJSON: () => ({ z: 3 }) };
