@@ -117,27 +117,6 @@ export function toSerializable(
       default:
         return undefined;
     }
-
-    // if (t === Type.Error) {
-    //   const { name, message, stack, cause, ...rest } = v;
-    //   return {
-    //     name,
-    //     message,
-    //     stack,
-    //     ...cause !== undefined ? { cause: toSerializable(cause) } : {},
-    //     ...resolve(rest),
-    //   };
-    // } else if (t === Type.Object) {
-    //   return Object.entries(v)
-    //     .filter(([k, v]) =>
-    //       type(k)[0] === Type.String && type(v)[0] !== Type.Undefined
-    //     )
-    //     .reduce((l, [k, v]) => ({ ...l, [k]: toSerializable(v) }), {});
-    // } else {
-    //   throw new TypeError(
-    //     `Unable to convert type ${t} into a Record<string, unknown>`,
-    //   );
-    // }
   };
   return resolve(value);
 }
