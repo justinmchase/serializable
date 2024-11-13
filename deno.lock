@@ -1,11 +1,11 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@justinmchase/type@~0.2.3": "0.2.3"
+    "jsr:@justinmchase/type@~0.2.4": "0.2.4"
   },
   "jsr": {
-    "@justinmchase/type@0.2.3": {
-      "integrity": "bb516f56c9860752f25d43c0e61709980405c36b6ef227317eca4e0f7509dc5e"
+    "@justinmchase/type@0.2.4": {
+      "integrity": "4852b04a1f8f905110e361392cd90a9f965e45eb0872fa84987b2a987f363cf5"
     }
   },
   "remote": {
@@ -54,7 +54,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@justinmchase/type@~0.2.3"
+      "jsr:@justinmchase/type@~0.2.4"
     ]
   }
 }

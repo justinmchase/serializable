@@ -35,8 +35,10 @@ Deno.test({
       [{ x: 1, y: true, z: "three" }, { x: 1, y: true, z: "three" }],
       [
         new Date("2020-01-01T00:00:00.000Z"),
-        new Date("2020-01-01T00:00:00.000Z"),
+        "2020-01-01T00:00:00.000Z",
       ],
+      [new Map([["a", 1], ["b", 2]]), [["a", 1], ["b", 2]]],
+      [new Set([1, 2, 3]), [1, 2, 3]],
     ];
 
     for (const [value, expected] of data) {

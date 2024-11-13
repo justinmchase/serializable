@@ -1,4 +1,4 @@
-import { Type, type } from "@justinmchase/type";
+import { isReference, Type, type } from "@justinmchase/type";
 
 /**
  * An object type which implements a custom toJSON function
@@ -36,18 +36,6 @@ export type Serializable =
  */
 export function isToJson(value: unknown): value is ToJson {
   return typeof (value as ToJson).toJSON === "function";
-}
-
-export function isReference(t: Type): boolean {
-  switch (t) {
-    case Type.Object:
-    case Type.Array:
-    case Type.Error:
-    case Type.Function:
-      return true;
-    default:
-      return false;
-  }
 }
 
 /**
@@ -108,6 +96,12 @@ export function toSerializable(
         return v.toString();
       case Type.Array:
         return v.map((v) => resolve(v));
+      case Type.Date:
+        return v;
+      case Type.Map:
+        return resolve([...v]);
+      case Type.Set:
+        return resolve([...v]);
       case Type.Error: {
         const { name, message, stack, cause, ...rest } = v;
         return {
@@ -124,6 +118,9 @@ export function toSerializable(
         } else {
           return record(v);
         }
+      case Type.Function:
+      case Type.Undefined:
+      case Type.Symbol:
       default:
         return undefined;
     }
