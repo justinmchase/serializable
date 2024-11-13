@@ -88,10 +88,11 @@ export function toSerializable(
 
     switch (t) {
       case Type.Null:
-      case Type.Number:
       case Type.Boolean:
       case Type.String:
         return v;
+      case Type.Number:
+        return isNaN(v) ? null : v;
       case Type.BigInt:
         return v.toString();
       case Type.Array:

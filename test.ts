@@ -23,6 +23,7 @@ Deno.test({
       [false, false],
       [0, 0],
       [BigInt(100), "100"],
+      [NaN, null],
       [[], []],
       [[1, [2, [3]]], [1, [2, [3]]]],
       [new TestError(), {
