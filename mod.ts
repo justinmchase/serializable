@@ -83,15 +83,25 @@ export function toSerializable(
   value: unknown,
 ): Serializable {
   let i = 0;
-  const instances = new Map<unknown, number>();
+  // Tracks values currently on the DFS stack — i.e. *ancestors* of the node
+  // being resolved. Only true cycles produce a `{ _ref: N }` placeholder.
+  //
+  // Shared but ACYCLIC references (the same object appearing in two unrelated
+  // branches of the graph, e.g. once under `current_fields[k]` and once under
+  // `fields[k][0]`) are inlined as independent copies, matching the semantics
+  // of native `JSON.stringify`. Emitting `_ref` markers in that case would
+  // corrupt output for any downstream JSON consumer that does not know how to
+  // resolve the custom `_ref` encoding (and `JSON.stringify`/`JSON.parse`
+  // round-tripping cannot resolve it on its own).
+  const ancestors = new Map<unknown, number>();
   const resolve = (value: unknown): Serializable => {
     const [t, v] = type(value);
     if (needsRefTracking(t)) {
-      if (instances.has(value)) {
-        return { _ref: instances.get(value) };
-      } else {
-        instances.set(value, i++);
+      const seen = ancestors.get(value);
+      if (seen !== undefined) {
+        return { _ref: seen };
       }
+      ancestors.set(value, i++);
     }
 
     const record = (
@@ -103,44 +113,50 @@ export function toSerializable(
         )
         .reduce((l, [k, v]) => ({ ...l, [k]: resolve(v) }), {});
 
-    switch (t) {
-      case Type.Null:
-      case Type.Boolean:
-      case Type.String:
-        return v;
-      case Type.Number:
-        return isNaN(v) ? null : v;
-      case Type.BigInt:
-        return v.toString();
-      case Type.Array:
-        return v.map((v) => resolve(v));
-      case Type.Date:
-        return v;
-      case Type.Map:
-        return resolve([...v]);
-      case Type.Set:
-        return resolve([...v]);
-      case Type.Error: {
-        const { name, message, stack, cause, ...rest } = v;
-        return {
-          name,
-          message,
-          stack,
-          ...cause !== undefined ? { cause: resolve(cause) } : {},
-          ...record(rest),
-        };
-      }
-      case Type.Object:
-        if (isToJson(value)) {
-          return value;
-        } else {
-          return record(v);
+    try {
+      switch (t) {
+        case Type.Null:
+        case Type.Boolean:
+        case Type.String:
+          return v;
+        case Type.Number:
+          return isNaN(v) ? null : v;
+        case Type.BigInt:
+          return v.toString();
+        case Type.Array:
+          return v.map((v) => resolve(v));
+        case Type.Date:
+          return v;
+        case Type.Map:
+          return resolve([...v]);
+        case Type.Set:
+          return resolve([...v]);
+        case Type.Error: {
+          const { name, message, stack, cause, ...rest } = v;
+          return {
+            name,
+            message,
+            stack,
+            ...cause !== undefined ? { cause: resolve(cause) } : {},
+            ...record(rest),
+          };
         }
-      case Type.Function:
-      case Type.Undefined:
-      case Type.Symbol:
-      default:
-        return undefined;
+        case Type.Object:
+          if (isToJson(value)) {
+            return value;
+          } else {
+            return record(v);
+          }
+        case Type.Function:
+        case Type.Undefined:
+        case Type.Symbol:
+        default:
+          return undefined;
+      }
+    } finally {
+      if (needsRefTracking(t)) {
+        ancestors.delete(value);
+      }
     }
   };
   return resolve(value);
