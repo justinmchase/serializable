@@ -117,6 +117,33 @@ Deno.test({
         });
       },
     });
+    await t.step({
+      name: "shared acyclic object reference is inlined, not _ref-encoded",
+      fn: () => {
+        // The same record object appears in two unrelated branches of the
+        // graph. JSON consumers cannot resolve `_ref` markers, so the output
+        // MUST inline both occurrences as independent copies.
+        const fieldRecord = { value: "Bob", source: "sender_verified" };
+        const record = {
+          current_fields: { name: fieldRecord },
+          fields: { name: [fieldRecord] },
+        };
+        const actual = toSerializableRecord(record);
+        assertEquals(actual, {
+          current_fields: { name: { value: "Bob", source: "sender_verified" } },
+          fields: { name: [{ value: "Bob", source: "sender_verified" }] },
+        });
+      },
+    });
+    await t.step({
+      name: "shared acyclic array reference is inlined, not _ref-encoded",
+      fn: () => {
+        const sharedArr = [1, 2, 3];
+        const record = { a: sharedArr, b: sharedArr };
+        const actual = toSerializableRecord(record);
+        assertEquals(actual, { a: [1, 2, 3], b: [1, 2, 3] });
+      },
+    });
   },
 });
 
