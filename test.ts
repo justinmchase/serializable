@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertEquals,
-  assertThrows,
-} from "https://deno.land/std@0.197.0/assert/mod.ts";
+import { assert, assertEquals, assertThrows } from "@std/assert";
 import type { SerializableRecord } from "./mod.ts";
 import { isToJson, toSerializable, toSerializableRecord } from "./mod.ts";
 
@@ -91,6 +87,34 @@ Deno.test({
           () => toSerializableRecord(true as unknown as Error),
           "Unable to convert type boolean into a Record<string, unknown>",
         );
+      },
+    });
+    await t.step({
+      name: "shared Date instance is not deduplicated via _ref",
+      fn: () => {
+        const now = new Date("2020-01-01T00:00:00.000Z");
+        const record = { a: now, b: now, nested: { c: now } };
+        const actual = toSerializableRecord(record);
+        assertEquals(actual, {
+          a: now,
+          b: now,
+          nested: { c: now },
+        });
+      },
+    });
+    await t.step({
+      name: "shared Date inside array is not deduplicated via _ref",
+      fn: () => {
+        const now = new Date("2020-01-01T00:00:00.000Z");
+        const record = {
+          current: { recorded_at: now },
+          history: [{ recorded_at: now }],
+        };
+        const actual = toSerializableRecord(record);
+        assertEquals(actual, {
+          current: { recorded_at: now },
+          history: [{ recorded_at: now }],
+        });
       },
     });
   },

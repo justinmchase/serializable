@@ -1,6 +1,23 @@
 import { isReference, Type, type } from "@justinmchase/type";
 
 /**
+ * Returns true for values that should be tracked across the serialization
+ * graph for `_ref`-based cycle/alias deduplication.
+ *
+ * This is intentionally NARROWER than `isReference` from `@justinmchase/type`:
+ * - `Date` is a JS reference type, but it serializes to a primitive ISO string
+ *   (and cannot participate in cycles), so deduplicating shared `Date`
+ *   instances via `{ _ref: N }` would corrupt output for any consumer that
+ *   re-encounters the same instance (e.g. a record stored once in a history
+ *   array and again under a `current_*` view).
+ * - Future primitive-serializing reference types should be excluded here as
+ *   well, rather than weakening `isReference` itself.
+ */
+function needsRefTracking(t: Type): boolean {
+  return isReference(t) && t !== Type.Date;
+}
+
+/**
  * An object type which implements a custom toJSON function
  */
 export type ToJson = { toJSON(): Serializable };
@@ -69,7 +86,7 @@ export function toSerializable(
   const instances = new Map<unknown, number>();
   const resolve = (value: unknown): Serializable => {
     const [t, v] = type(value);
-    if (isReference(t)) {
+    if (needsRefTracking(t)) {
       if (instances.has(value)) {
         return { _ref: instances.get(value) };
       } else {
