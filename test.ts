@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertEquals,
-  assertThrows,
-} from "@std/assert";
+import { assert, assertEquals, assertThrows } from "@std/assert";
 import type { SerializableRecord } from "./mod.ts";
 import { isToJson, toSerializable, toSerializableRecord } from "./mod.ts";
 
